@@ -1,10 +1,14 @@
 package uk.ac.ed.inf;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.*;
 
+import java.io.IOException;
+import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,9 +47,21 @@ public class TestIlpJar {
                                 new Pizza[]{new Pizza("Pizza A", 2300)})
                 });
 
-        System.out.println("order validation resulted in status: " +
-                validatedOrder.getOrderStatus() +
-                " and validation code: " +
-                validatedOrder.getOrderValidationCode());
+        if (validatedOrder != null){
+            System.out.println("order validation resulted in status: " +
+                    validatedOrder.getOrderStatus() +
+                    " and validation code: " +
+                    validatedOrder.getOrderValidationCode());
+        }
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        try {
+            var orders = mapper.readValue(new URL("https://ilp-rest.azurewebsites.net/orders/2023-10-10"), Order[].class);
+            System.out.println("read all orders");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
